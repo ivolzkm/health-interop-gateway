@@ -34,3 +34,18 @@
 - [ ] Documentação completa
 - [ ] Guia de deployment
 - [ ] Exemplos de uso
+
+
+## Backend - Sistema de Fila com Redis
+- [x] Instalar dependências (bullmq, redis)
+- [x] Criar módulo de gerenciamento de filas
+- [x] Implementar job processor para mensagens de integração
+- [x] Implementar lógica de retry automático
+- [x] Criar dead letter queue para mensagens falhadas
+- [x] Implementar monitoramento de jobs
+- [x] Criar endpoints para visualizar status de jobs
+- [x] Implementar cleanup de jobs antigos
+- [x] Integrar fila com routers.ts
+- [x] Criar testes unitários para sistema de filas
+- [x] Criar página de monitoramento de fila no dashboard
+- [x] Criar documentação completa do sistema de filas

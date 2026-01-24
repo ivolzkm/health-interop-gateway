@@ -1,0 +1,1 @@
+ALTER TABLE `integrationMessages` MODIFY COLUMN `status` enum('received','processing','validated','transformed','failed','queued') NOT NULL DEFAULT 'received';

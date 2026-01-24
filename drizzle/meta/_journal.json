@@ -15,6 +15,13 @@
       "when": 1769278179896,
       "tag": "0001_gray_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1769279147168,
+      "tag": "0002_third_elektra",
+      "breakpoints": true
     }
   ]
 }

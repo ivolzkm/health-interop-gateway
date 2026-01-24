@@ -71,7 +71,7 @@ export const integrationMessages = mysqlTable("integrationMessages", {
   messageId: varchar("messageId", { length: 255 }).notNull().unique(),
   sourceData: longtext("sourceData").notNull(), // Original encrypted data
   fhirData: longtext("fhirData"), // Transformed FHIR data
-  status: mysqlEnum("status", ["received", "processing", "validated", "transformed", "failed"]).default("received").notNull(),
+  status: mysqlEnum("status", ["received", "processing", "validated", "transformed", "failed", "queued"]).default("received").notNull(),
   validationErrors: longtext("validationErrors"), // JSON array of validation errors
   processedAt: timestamp("processedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

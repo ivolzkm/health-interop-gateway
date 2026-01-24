@@ -24,6 +24,7 @@ import { encryptData, decryptData } from "./encryption";
 import { mapData, createPatientMappingConfig, createLabResultMappingConfig } from "./mapping-engine";
 import { validateFhirResource, validateResourceStructure } from "./fhir-validator";
 import { logMessageProcessing, logAuditAction } from "./audit";
+import { submitIntegrationJob, getJobStatus, getQueueStats, getFailedJobs, retryFailedJob } from "./queue";
 import type { Request } from "express";
 
 export const appRouter = router({
@@ -45,6 +46,7 @@ export const appRouter = router({
         apiKey: z.string(),
         mappingId: z.number(),
         sourceData: z.record(z.string(), z.unknown()),
+        useQueue: z.boolean().optional().default(true),
       }))
       .mutation(async ({ input, ctx }) => {
         const startTime = Date.now();
@@ -56,6 +58,45 @@ export const appRouter = router({
           if (!client) {
             await logAuditAction(req, undefined, undefined, 'invalid_api_key', 'integration_message', messageId, 'Invalid API key provided');
             throw new Error('Invalid API key');
+          }
+
+          // If async queue is enabled, submit to queue and return immediately
+          if (input.useQueue) {
+            const encryptionKey = process.env.DATA_ENCRYPTION_KEY || 'default-key-change-in-production';
+            const jobId = await submitIntegrationJob({
+              messageId,
+              clientId: client.id,
+              mappingId: input.mappingId,
+              sourceData: input.sourceData,
+              encryptionKey,
+              ipAddress: req.ip,
+              userAgent: req.get('user-agent'),
+            });
+
+            await createIntegrationMessage({
+              clientId: client.id,
+              mappingId: input.mappingId,
+              messageId,
+              status: 'queued',
+              sourceData: JSON.stringify(input.sourceData),
+            });
+
+            await logAuditAction(
+              req,
+              client.id,
+              client.id,
+              'message_queued',
+              'integration_message',
+              messageId,
+              'Message queued for async processing'
+            );
+
+            return {
+              messageId,
+              status: 'queued',
+              errors: [],
+              processingTime: Date.now() - startTime,
+            };
           }
 
           const mapping = await getDataMappingById(input.mappingId);
